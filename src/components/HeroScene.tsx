@@ -158,10 +158,10 @@ function ParticleField() {
       } else if (type < 0.7) {
         // Vehicle detection point clouds — clustered on vehicles
         const v = vehicles[Math.floor(rand() * vehicles.length)];
-        const vw = v.heading === 0 ? 1.0 : 0.5; // width along heading
-        const vh = v.heading === 0 ? 0.5 : 1.0;
+        const vw = v.heading === 0 ? 1.6 : 0.8;
+        const vh = v.heading === 0 ? 0.8 : 1.6;
         pos[i3] = v.x + (rand() - 0.5) * vw;
-        pos[i3 + 1] = rand() * 0.4 + 0.02;
+        pos[i3 + 1] = rand() * 0.6 + 0.02;
         pos[i3 + 2] = v.z + (rand() - 0.5) * vh;
         sz[i] = 1.8 + rand() * 2.2;
         tp[i] = 1;
@@ -291,16 +291,16 @@ function BoundingBoxes() {
   // Same vehicles as in particle generation — 3D bounding box wireframes
   const boxes = useMemo(
     () => [
-      { x: -8, z: -1.2, w: 1.0, d: 0.5, heading: 0 },
-      { x: -4.5, z: -0.4, w: 1.0, d: 0.5, heading: 0 },
-      { x: 3, z: 0.4, w: 1.0, d: 0.5, heading: 0 },
-      { x: 7, z: 1.2, w: 1.0, d: 0.5, heading: 0 },
-      { x: 10, z: -1.2, w: 1.0, d: 0.5, heading: 0 },
-      { x: -1.2, z: -7, w: 0.5, d: 1.0, heading: 1 },
-      { x: -0.4, z: -3.5, w: 0.5, d: 1.0, heading: 1 },
-      { x: 0.4, z: 4, w: 0.5, d: 1.0, heading: 1 },
-      { x: 1.2, z: 8, w: 0.5, d: 1.0, heading: 1 },
-      { x: -0.4, z: 11, w: 0.5, d: 1.0, heading: 1 },
+      { x: -8, z: -1.2, w: 1.8, d: 0.9, heading: 0 },
+      { x: -4.5, z: -0.4, w: 1.8, d: 0.9, heading: 0 },
+      { x: 3, z: 0.4, w: 1.8, d: 0.9, heading: 0 },
+      { x: 7, z: 1.2, w: 1.8, d: 0.9, heading: 0 },
+      { x: 10, z: -1.2, w: 1.8, d: 0.9, heading: 0 },
+      { x: -1.2, z: -7, w: 0.9, d: 1.8, heading: 1 },
+      { x: -0.4, z: -3.5, w: 0.9, d: 1.8, heading: 1 },
+      { x: 0.4, z: 4, w: 0.9, d: 1.8, heading: 1 },
+      { x: 1.2, z: 8, w: 0.9, d: 1.8, heading: 1 },
+      { x: -0.4, z: 11, w: 0.9, d: 1.8, heading: 1 },
     ],
     []
   );
@@ -312,19 +312,19 @@ function BoundingBoxes() {
       const mesh = child as THREE.Mesh;
       const mat = mesh.material as THREE.MeshBasicMaterial;
       // Subtle pulse
-      mat.opacity = 0.15 + Math.sin(t * 2 + i * 0.7) * 0.08;
+      mat.opacity = 0.22 + Math.sin(t * 2 + i * 0.7) * 0.1;
     });
   });
 
   return (
     <group ref={groupRef}>
       {boxes.map((b, i) => (
-        <mesh key={i} position={[b.x, 0.2, b.z]}>
-          <boxGeometry args={[b.w, 0.4, b.d]} />
+        <mesh key={i} position={[b.x, 0.35, b.z]}>
+          <boxGeometry args={[b.w, 0.7, b.d]} />
           <meshBasicMaterial
             color={0x3b82f6}
             transparent
-            opacity={0.18}
+            opacity={0.25}
             wireframe
             blending={THREE.AdditiveBlending}
             depthWrite={false}
@@ -438,11 +438,11 @@ function CameraRig() {
     const mx = smoothMouse.current.x;
     const my = smoothMouse.current.y;
 
-    // Steep top-down view — radar display fills viewport, not empty void
-    camera.position.x = Math.cos(t) * 5 + mx * 1.5 + 2;
-    camera.position.y = 18 - my * 1;
-    camera.position.z = Math.sin(t) * 5 + 3;
-    camera.lookAt(mx * 0.5, 0, my * 0.5);
+    // Centered top-down with slight tilt for 3D depth
+    camera.position.x = Math.cos(t) * 3 + mx * 1;
+    camera.position.y = 20;
+    camera.position.z = Math.sin(t) * 3 + 4;
+    camera.lookAt(0, 0, 0);
   });
 
   return null;
@@ -465,7 +465,7 @@ function Scene() {
 export function HeroScene() {
   return (
     <Canvas
-      camera={{ position: [2, 18, 3], fov: 50, near: 0.1, far: 100 }}
+      camera={{ position: [0, 20, 4], fov: 50, near: 0.1, far: 100 }}
       dpr={[1, 2]}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       style={{ background: "transparent" }}
