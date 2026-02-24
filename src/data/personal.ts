@@ -15,7 +15,7 @@ export const personal = {
   linkedin: "https://linkedin.com/in/insanarafat",
   googleScholar:
     "https://scholar.google.com/citations?user=PLACEHOLDER",
-  profileImage: "/images/profile-image.jpeg",
+  profileImage: "/images/ite-ucf-student-chapter/insan_on_stage_speaking.jpeg",
   stats: [
     { label: "Publications", value: "7+" },
     { label: "Years Research", value: "4+" },
