@@ -13,7 +13,7 @@ function seededRandom(seed: number) {
   };
 }
 
-const PARTICLE_COUNT = 2400;
+const PARTICLE_COUNT = 2000;
 
 // ── Shaders ─────────────────────────────────────────────────────────────────
 
@@ -101,38 +101,38 @@ function ParticleField() {
       const i3 = i * 3;
       const type = rand();
 
-      if (type < 0.35) {
-        // Road surface — flat cross intersection
+      if (type < 0.4) {
+        // Road surface — flat cross intersection, hugging ground
         if (rand() < 0.5) {
-          pos[i3] = (rand() - 0.5) * 28;
-          pos[i3 + 1] = (rand() - 0.5) * 0.15;
+          pos[i3] = (rand() - 0.5) * 26;
+          pos[i3 + 1] = rand() * 0.08;
           pos[i3 + 2] = (rand() - 0.5) * 2.5;
         } else {
           pos[i3] = (rand() - 0.5) * 2.5;
-          pos[i3 + 1] = (rand() - 0.5) * 0.15;
-          pos[i3 + 2] = (rand() - 0.5) * 28;
+          pos[i3 + 1] = rand() * 0.08;
+          pos[i3 + 2] = (rand() - 0.5) * 26;
         }
-        sz[i] = 1.5 + rand() * 1.5;
+        sz[i] = 1.2 + rand() * 1.5;
         tp[i] = 0;
-      } else if (type < 0.55) {
-        // Vehicle detections — tight small clusters
+      } else if (type < 0.65) {
+        // Vehicle detections — tight clusters, slight height for 3D box feel
         const clusterIdx = Math.floor(rand() * 8);
         const cx = [3, -5, 7, -2, 9, -8, 1, -6][clusterIdx];
         const cz = [1, -3, -1, 5, 3, 1, -7, -5][clusterIdx];
 
-        pos[i3] = cx + (rand() - 0.5) * 0.8;
-        pos[i3 + 1] = rand() * 0.6 + 0.1;
-        pos[i3 + 2] = cz + (rand() - 0.5) * 0.5;
-        sz[i] = 2.0 + rand() * 2.0;
+        pos[i3] = cx + (rand() - 0.5) * 0.7;
+        pos[i3 + 1] = rand() * 0.5;
+        pos[i3 + 2] = cz + (rand() - 0.5) * 0.4;
+        sz[i] = 1.8 + rand() * 2.0;
         tp[i] = 1;
       } else {
-        // Sparse ambient scatter — background noise
-        const r = 2 + rand() * 14;
+        // Ground-level scatter — sensor noise, all flat on the surface
+        const r = 1 + rand() * 13;
         const a = rand() * Math.PI * 2;
         pos[i3] = Math.cos(a) * r;
-        pos[i3 + 1] = (rand() - 0.5) * 6;
+        pos[i3 + 1] = rand() * 0.05;
         pos[i3 + 2] = Math.sin(a) * r;
-        sz[i] = 0.8 + rand() * 1.2;
+        sz[i] = 0.8 + rand() * 1.0;
         tp[i] = 0;
       }
 
@@ -207,12 +207,12 @@ function RadarBeam() {
   });
 
   return (
-    <group ref={groupRef} position={[0, 0.02, 0]}>
+    <group ref={groupRef} position={[0, 0.01, 0]}>
       <mesh geometry={fanGeo}>
         <meshBasicMaterial
           color={0x06b6d4}
           transparent
-          opacity={0.03}
+          opacity={0.05}
           side={THREE.DoubleSide}
           depthWrite={false}
           blending={THREE.AdditiveBlending}
@@ -220,7 +220,7 @@ function RadarBeam() {
       </mesh>
       {/* Leading edge */}
       <mesh position={[7, 0, 0]}>
-        <boxGeometry args={[14, 0.015, 0.015]} />
+        <boxGeometry args={[14, 0.01, 0.01]} />
         <meshBasicMaterial
           color={0x06b6d4}
           transparent
@@ -251,7 +251,7 @@ function GroundElements() {
   useEffect(() => {
     if (gridRef.current) {
       const mat = gridRef.current.material as THREE.Material;
-      mat.opacity = 0.04;
+      mat.opacity = 0.1;
       mat.transparent = true;
       mat.depthWrite = false;
     }
@@ -261,26 +261,50 @@ function GroundElements() {
     <group>
       <gridHelper
         ref={gridRef}
-        args={[40, 40, 0x06b6d4, 0x06b6d4]}
-        position={[0, -0.3, 0]}
+        args={[30, 30, 0x06b6d4, 0x06b6d4]}
+        position={[0, -0.05, 0]}
       />
+      {/* Range rings — strong enough to read as radar display */}
       {[3, 6, 9, 12].map((r) => (
         <mesh
           key={r}
-          position={[0, -0.25, 0]}
+          position={[0, -0.02, 0]}
           rotation={[-Math.PI / 2, 0, 0]}
         >
-          <ringGeometry args={[r - 0.01, r + 0.01, 64]} />
+          <ringGeometry args={[r - 0.02, r + 0.02, 96]} />
           <meshBasicMaterial
             color={0x06b6d4}
             transparent
-            opacity={0.06}
+            opacity={0.15}
             side={THREE.DoubleSide}
             depthWrite={false}
             blending={THREE.AdditiveBlending}
           />
         </mesh>
       ))}
+      {/* Cross-hair axis lines through center */}
+      <mesh position={[0, -0.01, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[26, 0.02]} />
+        <meshBasicMaterial
+          color={0x06b6d4}
+          transparent
+          opacity={0.12}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+      <mesh position={[0, -0.01, 0]} rotation={[-Math.PI / 2, 0, Math.PI / 2]}>
+        <planeGeometry args={[26, 0.02]} />
+        <meshBasicMaterial
+          color={0x06b6d4}
+          transparent
+          opacity={0.12}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
     </group>
   );
 }
@@ -310,11 +334,11 @@ function CameraRig() {
     const mx = smoothMouse.current.x;
     const my = smoothMouse.current.y;
 
-    // Orbit biased to the right side of the screen
-    camera.position.x = Math.cos(t) * 16 + mx * 2 + 4;
-    camera.position.y = 12 - my * 1.5;
-    camera.position.z = Math.sin(t) * 16;
-    camera.lookAt(2, 0, 0);
+    // Low-angle orbit — looking across the radar surface, not down from space
+    camera.position.x = Math.cos(t) * 18 + mx * 2 + 3;
+    camera.position.y = 6 - my * 1;
+    camera.position.z = Math.sin(t) * 18;
+    camera.lookAt(1, 0, 0);
   });
 
   return null;
@@ -336,7 +360,7 @@ function Scene() {
 export function HeroScene() {
   return (
     <Canvas
-      camera={{ position: [20, 12, 16], fov: 50, near: 0.1, far: 100 }}
+      camera={{ position: [21, 6, 18], fov: 50, near: 0.1, far: 100 }}
       dpr={[1, 2]}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       style={{ background: "transparent" }}
