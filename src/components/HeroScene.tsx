@@ -97,42 +97,82 @@ function ParticleField() {
     const ph = new Float32Array(PARTICLE_COUNT);
     const tp = new Float32Array(PARTICLE_COUNT); // 0=infrastructure, 1=detection
 
+    // Road geometry: 4-lane intersection (two roads crossing)
+    // Lanes at z = -1.5, -0.5, 0.5, 1.5 for east-west road
+    // Lanes at x = -1.5, -0.5, 0.5, 1.5 for north-south road
+    const roadWidth = 3.5; // half-width of road
+    const laneOffsets = [-1.2, -0.4, 0.4, 1.2]; // 4 lane centers
+
+    // Vehicle positions: on lanes, at realistic spacing
+    // Format: [laneX, laneZ, heading] — heading 0=east, 1=north
+    const vehicles = [
+      // East-west road vehicles
+      { x: -8, z: -1.2, heading: 0 },
+      { x: -4.5, z: -0.4, heading: 0 },
+      { x: 3, z: 0.4, heading: 0 },
+      { x: 7, z: 1.2, heading: 0 },
+      { x: 10, z: -1.2, heading: 0 },
+      // North-south road vehicles
+      { x: -1.2, z: -7, heading: 1 },
+      { x: -0.4, z: -3.5, heading: 1 },
+      { x: 0.4, z: 4, heading: 1 },
+      { x: 1.2, z: 8, heading: 1 },
+      { x: -0.4, z: 11, heading: 1 },
+    ];
+
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       const i3 = i * 3;
       const type = rand();
 
-      if (type < 0.4) {
-        // Road surface — flat cross intersection, hugging ground
+      if (type < 0.35) {
+        // Road surface particles — clear lane structure
         if (rand() < 0.5) {
-          pos[i3] = (rand() - 0.5) * 26;
-          pos[i3 + 1] = rand() * 0.08;
-          pos[i3 + 2] = (rand() - 0.5) * 2.5;
+          // East-west road
+          pos[i3] = (rand() - 0.5) * 28;
+          pos[i3 + 1] = rand() * 0.04;
+          pos[i3 + 2] = (rand() - 0.5) * roadWidth * 2;
         } else {
-          pos[i3] = (rand() - 0.5) * 2.5;
-          pos[i3 + 1] = rand() * 0.08;
-          pos[i3 + 2] = (rand() - 0.5) * 26;
+          // North-south road
+          pos[i3] = (rand() - 0.5) * roadWidth * 2;
+          pos[i3 + 1] = rand() * 0.04;
+          pos[i3 + 2] = (rand() - 0.5) * 28;
         }
-        sz[i] = 1.2 + rand() * 1.5;
+        sz[i] = 1.0 + rand() * 1.2;
         tp[i] = 0;
-      } else if (type < 0.65) {
-        // Vehicle detections — tight clusters, slight height for 3D box feel
-        const clusterIdx = Math.floor(rand() * 8);
-        const cx = [3, -5, 7, -2, 9, -8, 1, -6][clusterIdx];
-        const cz = [1, -3, -1, 5, 3, 1, -7, -5][clusterIdx];
-
-        pos[i3] = cx + (rand() - 0.5) * 0.7;
-        pos[i3 + 1] = rand() * 0.5;
-        pos[i3 + 2] = cz + (rand() - 0.5) * 0.4;
-        sz[i] = 1.8 + rand() * 2.0;
+      } else if (type < 0.45) {
+        // Lane markings — dashed center lines and edge lines
+        const isEW = rand() < 0.5;
+        const lineZ = laneOffsets[Math.floor(rand() * 4)];
+        const along = (rand() - 0.5) * 26;
+        if (isEW) {
+          pos[i3] = along;
+          pos[i3 + 1] = 0.02;
+          pos[i3 + 2] = lineZ + (rand() - 0.5) * 0.06;
+        } else {
+          pos[i3] = lineZ + (rand() - 0.5) * 0.06;
+          pos[i3 + 1] = 0.02;
+          pos[i3 + 2] = along;
+        }
+        sz[i] = 1.4 + rand() * 0.8;
+        tp[i] = 0;
+      } else if (type < 0.7) {
+        // Vehicle detection point clouds — clustered on vehicles
+        const v = vehicles[Math.floor(rand() * vehicles.length)];
+        const vw = v.heading === 0 ? 1.0 : 0.5; // width along heading
+        const vh = v.heading === 0 ? 0.5 : 1.0;
+        pos[i3] = v.x + (rand() - 0.5) * vw;
+        pos[i3 + 1] = rand() * 0.4 + 0.02;
+        pos[i3 + 2] = v.z + (rand() - 0.5) * vh;
+        sz[i] = 1.8 + rand() * 2.2;
         tp[i] = 1;
       } else {
-        // Ground-level scatter — sensor noise, all flat on the surface
-        const r = 1 + rand() * 13;
+        // Sparse ground scatter within road area
+        const r = 0.5 + rand() * 12;
         const a = rand() * Math.PI * 2;
         pos[i3] = Math.cos(a) * r;
-        pos[i3 + 1] = rand() * 0.05;
+        pos[i3 + 1] = rand() * 0.03;
         pos[i3 + 2] = Math.sin(a) * r;
-        sz[i] = 0.8 + rand() * 1.0;
+        sz[i] = 0.6 + rand() * 0.8;
         tp[i] = 0;
       }
 
@@ -239,6 +279,58 @@ function RadarBeam() {
           blending={THREE.AdditiveBlending}
         />
       </mesh>
+    </group>
+  );
+}
+
+// ── Detection Bounding Boxes ────────────────────────────────────────────────
+
+function BoundingBoxes() {
+  const groupRef = useRef<THREE.Group>(null);
+
+  // Same vehicles as in particle generation — 3D bounding box wireframes
+  const boxes = useMemo(
+    () => [
+      { x: -8, z: -1.2, w: 1.0, d: 0.5, heading: 0 },
+      { x: -4.5, z: -0.4, w: 1.0, d: 0.5, heading: 0 },
+      { x: 3, z: 0.4, w: 1.0, d: 0.5, heading: 0 },
+      { x: 7, z: 1.2, w: 1.0, d: 0.5, heading: 0 },
+      { x: 10, z: -1.2, w: 1.0, d: 0.5, heading: 0 },
+      { x: -1.2, z: -7, w: 0.5, d: 1.0, heading: 1 },
+      { x: -0.4, z: -3.5, w: 0.5, d: 1.0, heading: 1 },
+      { x: 0.4, z: 4, w: 0.5, d: 1.0, heading: 1 },
+      { x: 1.2, z: 8, w: 0.5, d: 1.0, heading: 1 },
+      { x: -0.4, z: 11, w: 0.5, d: 1.0, heading: 1 },
+    ],
+    []
+  );
+
+  useFrame(({ clock }) => {
+    if (!groupRef.current) return;
+    const t = clock.getElapsedTime();
+    groupRef.current.children.forEach((child, i) => {
+      const mesh = child as THREE.Mesh;
+      const mat = mesh.material as THREE.MeshBasicMaterial;
+      // Subtle pulse
+      mat.opacity = 0.15 + Math.sin(t * 2 + i * 0.7) * 0.08;
+    });
+  });
+
+  return (
+    <group ref={groupRef}>
+      {boxes.map((b, i) => (
+        <mesh key={i} position={[b.x, 0.2, b.z]}>
+          <boxGeometry args={[b.w, 0.4, b.d]} />
+          <meshBasicMaterial
+            color={0x3b82f6}
+            transparent
+            opacity={0.18}
+            wireframe
+            blending={THREE.AdditiveBlending}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
     </group>
   );
 }
@@ -362,6 +454,7 @@ function Scene() {
   return (
     <>
       <ParticleField />
+      <BoundingBoxes />
       <RadarBeam />
       <GroundElements />
       <CameraRig />
