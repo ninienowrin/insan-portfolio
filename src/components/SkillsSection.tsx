@@ -27,6 +27,13 @@ const nameColors: Record<string, string> = {
   amber: "text-accent-amber",
 };
 
+const countColors: Record<string, string> = {
+  cyan: "text-accent-cyan/50",
+  blue: "text-accent-blue/50",
+  violet: "text-accent-violet/50",
+  amber: "text-accent-amber/50",
+};
+
 export function SkillsSection() {
   return (
     <section id="skills" className="relative py-24 md:py-32">
@@ -38,7 +45,7 @@ export function SkillsSection() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
-          className="grid md:grid-cols-2 gap-6"
+          className="grid md:grid-cols-2 gap-4 sm:gap-6"
         >
           {skillCategories.map((category) => (
             <motion.div
@@ -49,7 +56,7 @@ export function SkillsSection() {
               {/* Category header */}
               <div
                 className={cn(
-                  "px-5 py-3 bg-gradient-to-r border-b",
+                  "px-4 py-2.5 sm:px-5 sm:py-3 bg-gradient-to-r border-b flex items-center justify-between",
                   headerColors[category.color]
                 )}
               >
@@ -61,16 +68,24 @@ export function SkillsSection() {
                 >
                   {category.name}
                 </h3>
+                <span
+                  className={cn(
+                    "text-xs font-mono",
+                    countColors[category.color]
+                  )}
+                >
+                  {category.skills.length}
+                </span>
               </div>
 
               {/* Skills grid */}
-              <div className="p-5">
-                <div className="flex flex-wrap gap-2">
+              <div className="p-3.5 sm:p-5">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {category.skills.map((skill) => (
                     <span
                       key={skill}
                       className={cn(
-                        "px-3 py-1.5 rounded-lg text-sm font-mono text-text-secondary",
+                        "px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-mono text-text-secondary",
                         "border border-border-subtle bg-bg-primary",
                         "transition-all duration-200 hover:shadow-md cursor-default",
                         tagHoverColors[category.color]

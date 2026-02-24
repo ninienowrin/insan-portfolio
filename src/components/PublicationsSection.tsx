@@ -22,7 +22,10 @@ const filters: { label: string; value: FilterType }[] = [
   { label: "Under Review", value: "under-review" },
 ];
 
-const statusStyles: Record<PublicationType, { label: string; variant: "cyan" | "blue" | "violet" | "amber" }> = {
+const statusStyles: Record<
+  PublicationType,
+  { label: string; variant: "cyan" | "blue" | "violet" | "amber" }
+> = {
   journal: { label: "Journal", variant: "cyan" },
   conference: { label: "Conference", variant: "blue" },
   "under-review": { label: "Under Review", variant: "amber" },
@@ -42,13 +45,13 @@ export function PublicationsSection() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading label="Publications" title="Publications" />
 
-        {/* Filter bar */}
+        {/* Filter bar — compact on mobile */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4, ease: customEase }}
-          className="flex flex-wrap gap-2 mb-8"
+          className="flex flex-wrap gap-1.5 sm:gap-2 mb-8"
         >
           {filters.map((f) => (
             <button
@@ -58,14 +61,14 @@ export function PublicationsSection() {
                 setExpandedId(null);
               }}
               className={cn(
-                "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                "px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200",
                 filter === f.value
                   ? "bg-accent-cyan/15 text-accent-cyan border border-accent-cyan/30"
                   : "bg-bg-secondary text-text-secondary border border-border-subtle hover:text-text-primary hover:border-text-tertiary"
               )}
             >
               {f.label}{" "}
-              <span className="text-xs opacity-60">
+              <span className="opacity-60">
                 ({publicationCounts[f.value]})
               </span>
             </button>
@@ -107,9 +110,34 @@ export function PublicationsSection() {
                           : "border-border-subtle hover:border-text-tertiary/30"
                       )}
                     >
-                      {/* Main row */}
-                      <div className="flex items-start gap-3">
-                        <Badge variant={status.variant} className="mt-1 flex-shrink-0">
+                      {/* ── Mobile layout ── */}
+                      <div className="sm:hidden">
+                        <div className="flex items-center justify-between mb-2">
+                          <Badge variant={status.variant}>
+                            {status.label}
+                          </Badge>
+                          <ChevronDown
+                            size={16}
+                            className={cn(
+                              "text-text-tertiary transition-transform duration-200",
+                              isExpanded && "rotate-180"
+                            )}
+                          />
+                        </div>
+                        <h3 className="font-medium text-text-primary text-[15px] leading-snug">
+                          {pub.title}
+                        </h3>
+                        <p className="text-xs text-text-secondary mt-2 line-clamp-1">
+                          {pub.venue} &middot; {pub.year}
+                        </p>
+                      </div>
+
+                      {/* ── Desktop layout ── */}
+                      <div className="hidden sm:flex items-start gap-3">
+                        <Badge
+                          variant={status.variant}
+                          className="mt-1 flex-shrink-0"
+                        >
                           {status.label}
                         </Badge>
                         <div className="flex-1 min-w-0">
@@ -147,7 +175,7 @@ export function PublicationsSection() {
                                 <span className="text-xs font-mono text-text-tertiary uppercase tracking-wider">
                                   Authors
                                 </span>
-                                <p className="text-sm text-text-secondary mt-1">
+                                <p className="text-sm text-text-secondary mt-1 leading-relaxed">
                                   {pub.authors.map((author, i) => (
                                     <span key={i}>
                                       {i > 0 && ", "}
