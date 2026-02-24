@@ -40,9 +40,9 @@ const vertexShader = /* glsl */ `
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
 
-    // Small, sharp points — proper point cloud aesthetic
-    gl_PointSize = aSize * uPixelRatio * (120.0 / -mvPosition.z);
-    gl_PointSize = clamp(gl_PointSize, 0.5, 12.0);
+    // Crisp points — sized for top-down view distance
+    gl_PointSize = aSize * uPixelRatio * (160.0 / -mvPosition.z);
+    gl_PointSize = clamp(gl_PointSize, 0.5, 14.0);
 
     // Radar sweep — particles illuminate as beam passes
     float angle = atan(position.z, position.x) + 3.14159265;
@@ -195,7 +195,7 @@ function RadarBeam() {
   const groupRef = useRef<THREE.Group>(null);
 
   const fanGeo = useMemo(() => {
-    const geo = new THREE.CircleGeometry(14, 48, 0, 0.25);
+    const geo = new THREE.CircleGeometry(14, 48, 0, 0.3);
     geo.rotateX(-Math.PI / 2);
     return geo;
   }, []);
@@ -264,7 +264,19 @@ function GroundElements() {
         args={[30, 30, 0x06b6d4, 0x06b6d4]}
         position={[0, -0.05, 0]}
       />
-      {/* Range rings — strong enough to read as radar display */}
+      {/* Outer boundary — frames the radar display */}
+      <mesh position={[0, -0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[13.9, 14.0, 128]} />
+        <meshBasicMaterial
+          color={0x06b6d4}
+          transparent
+          opacity={0.2}
+          side={THREE.DoubleSide}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+      {/* Range rings */}
       {[3, 6, 9, 12].map((r) => (
         <mesh
           key={r}
@@ -334,11 +346,11 @@ function CameraRig() {
     const mx = smoothMouse.current.x;
     const my = smoothMouse.current.y;
 
-    // Low-angle orbit — looking across the radar surface, not down from space
-    camera.position.x = Math.cos(t) * 18 + mx * 2 + 3;
-    camera.position.y = 6 - my * 1;
-    camera.position.z = Math.sin(t) * 18;
-    camera.lookAt(1, 0, 0);
+    // Steep top-down view — radar display fills viewport, not empty void
+    camera.position.x = Math.cos(t) * 5 + mx * 1.5 + 2;
+    camera.position.y = 18 - my * 1;
+    camera.position.z = Math.sin(t) * 5 + 3;
+    camera.lookAt(mx * 0.5, 0, my * 0.5);
   });
 
   return null;
@@ -360,7 +372,7 @@ function Scene() {
 export function HeroScene() {
   return (
     <Canvas
-      camera={{ position: [21, 6, 18], fov: 50, near: 0.1, far: 100 }}
+      camera={{ position: [2, 18, 3], fov: 50, near: 0.1, far: 100 }}
       dpr={[1, 2]}
       gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       style={{ background: "transparent" }}
