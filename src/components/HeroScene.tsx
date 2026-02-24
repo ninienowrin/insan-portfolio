@@ -15,7 +15,7 @@ function seededRandom(seed: number) {
   };
 }
 
-const PARTICLE_COUNT = 2500;
+const PARTICLE_COUNT = 1500;
 const ROAD_HALF = 14;
 const SWEEP_SPEED = 0.5;
 
@@ -755,11 +755,22 @@ function Scene() {
   );
 }
 
-export function HeroScene() {
+function ReadySignal({ onReady }: { onReady?: () => void }) {
+  const fired = useRef(false);
+  useFrame(() => {
+    if (!fired.current && onReady) {
+      fired.current = true;
+      onReady();
+    }
+  });
+  return null;
+}
+
+export function HeroScene({ onReady }: { onReady?: () => void }) {
   return (
     <Canvas
       camera={{ position: [0, 20, 7], fov: 50, near: 0.1, far: 100 }}
-      dpr={[1, 2]}
+      dpr={[1, 1.5]}
       gl={{
         antialias: true,
         alpha: false,
@@ -768,6 +779,7 @@ export function HeroScene() {
       style={{ background: "#0A0F1A" }}
     >
       <Scene />
+      <ReadySignal onReady={onReady} />
     </Canvas>
   );
 }

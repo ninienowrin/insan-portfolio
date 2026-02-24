@@ -79,6 +79,7 @@ export function AboutSection() {
               <img
                 src={personal.profileImage}
                 alt={`${personal.name} — PhD Researcher at UCF`}
+                loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover z-10"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = "none";

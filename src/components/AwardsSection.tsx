@@ -65,6 +65,7 @@ function EventCard({ event, index }: { event: EventShowcase; index: number }) {
             <img
               src={event.heroImage.src}
               alt={event.heroImage.alt}
+              loading="lazy"
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
             />
             {/* Gradient overlay — fades toward text side */}
@@ -77,7 +78,7 @@ function EventCard({ event, index }: { event: EventShowcase; index: number }) {
             />
 
             {/* Badge on hero */}
-            <div className="absolute top-3 left-3 flex items-center gap-2">
+            <div className="absolute bottom-3 left-3 md:top-3 md:bottom-auto flex items-center gap-2">
               <span
                 className={`px-2.5 py-1 rounded-full text-[11px] font-mono font-medium uppercase tracking-wider border backdrop-blur-sm ${event.badgeClasses}`}
               >
@@ -132,6 +133,7 @@ function EventCard({ event, index }: { event: EventShowcase; index: number }) {
                   <img
                     src={photo.src}
                     alt={photo.alt}
+                    loading="lazy"
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-colors" />

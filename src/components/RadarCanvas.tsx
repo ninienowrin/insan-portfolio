@@ -2,18 +2,67 @@
 
 import dynamic from "next/dynamic";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 const HeroScene = dynamic(
   () => import("./HeroScene").then((mod) => mod.HeroScene),
   { ssr: false }
 );
 
+function Loader({ fading }: { fading: boolean }) {
+  return (
+    <div
+      className={`absolute inset-0 flex items-center justify-center bg-bg-primary transition-opacity duration-700 ${
+        fading ? "opacity-0 pointer-events-none" : "opacity-100"
+      }`}
+      style={{ zIndex: 2 }}
+    >
+      <div className="relative w-28 h-28">
+        {/* Concentric rings */}
+        {[1, 0.7, 0.4].map((scale, i) => (
+          <div
+            key={i}
+            className="absolute inset-0 rounded-full border border-accent-cyan/20"
+            style={{ transform: `scale(${scale})` }}
+          />
+        ))}
+        {/* Sweep line */}
+        <div
+          className="absolute inset-0 origin-center"
+          style={{ animation: "spin 2s linear infinite" }}
+        >
+          <div
+            className="absolute left-1/2 top-0 h-1/2 w-px origin-bottom"
+            style={{
+              background:
+                "linear-gradient(to top, rgba(6,182,212,0.6), transparent)",
+            }}
+          />
+        </div>
+        {/* Center dot */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-accent-cyan" />
+        {/* Label */}
+        <p className="absolute -bottom-8 left-1/2 -translate-x-1/2 text-[10px] font-mono text-text-tertiary tracking-widest uppercase whitespace-nowrap">
+          Initializing
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export function RadarCanvas() {
   const reducedMotion = useReducedMotion();
   const [mounted, setMounted] = useState(false);
+  const [sceneReady, setSceneReady] = useState(false);
+  const [loaderFading, setLoaderFading] = useState(false);
 
   useEffect(() => setMounted(true), []);
+
+  const handleReady = useCallback(() => {
+    // Start fade-out, then remove loader
+    setLoaderFading(true);
+    setTimeout(() => setSceneReady(true), 700);
+  }, []);
 
   const show3D = mounted && !reducedMotion;
 
@@ -24,9 +73,12 @@ export function RadarCanvas() {
     >
       {show3D && (
         <div className="absolute inset-0" style={{ pointerEvents: "auto" }}>
-          <HeroScene />
+          <HeroScene onReady={handleReady} />
         </div>
       )}
+
+      {/* Loader — shown until 3D scene renders */}
+      {show3D && !sceneReady && <Loader fading={loaderFading} />}
 
       {/* Scanline overlay — subtle CRT/radar display feel */}
       {show3D && (
