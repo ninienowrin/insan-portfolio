@@ -59,17 +59,18 @@ export function ContactSection() {
           transition={{ duration: 0.5, ease: customEase, delay: 0.3 }}
           className="mb-10"
         >
-          <a
-            href={`mailto:${personal.email}`}
-            className="text-xl sm:text-2xl font-heading font-semibold text-accent-cyan hover:underline underline-offset-4"
-          >
-            {personal.email}
-          </a>
-          <button
-            onClick={copyEmail}
-            className="ml-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono text-text-secondary border border-border-subtle hover:border-text-tertiary/30 transition-colors"
-            aria-label="Copy email to clipboard"
-          >
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a
+              href={`mailto:${personal.email}`}
+              className="text-xl sm:text-2xl font-heading font-semibold text-accent-cyan hover:underline underline-offset-4"
+            >
+              {personal.email}
+            </a>
+            <button
+              onClick={copyEmail}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-mono text-text-secondary border border-border-subtle hover:border-text-tertiary/30 transition-colors"
+              aria-label="Copy email to clipboard"
+            >
             {copied ? (
               <>
                 <Check size={14} className="text-green-400" />
@@ -82,6 +83,7 @@ export function ContactSection() {
               </>
             )}
           </button>
+          </div>
         </motion.div>
 
         {/* Location */}

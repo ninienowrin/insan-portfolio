@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Download, Sun, Moon } from "lucide-react";
-import { useTheme } from "next-themes";
+import { Menu, X, Download } from "lucide-react";
 import { useScrollSpy } from "@/hooks/useScrollSpy";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
   { label: "About", href: "#about" },
+  { label: "Highlights", href: "#awards" },
   { label: "Research", href: "#research" },
   { label: "Publications", href: "#publications" },
   { label: "Experience", href: "#experience" },
@@ -19,12 +19,9 @@ const navLinks = [
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const activeSection = useScrollSpy();
-  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
-    setMounted(true);
     const onScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -84,16 +81,7 @@ export function Navbar() {
                 );
               })}
 
-              <div className="ml-4 flex items-center gap-2">
-                {mounted && (
-                  <button
-                    onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                    className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-colors"
-                    aria-label="Toggle theme"
-                  >
-                    {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-                  </button>
-                )}
+              <div className="ml-4">
                 <a
                   href="/files/Insan_CV.pdf"
                   target="_blank"
@@ -108,15 +96,6 @@ export function Navbar() {
 
             {/* Mobile hamburger */}
             <div className="flex lg:hidden items-center gap-2">
-              {mounted && (
-                <button
-                  onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                  className="p-2 rounded-lg text-text-secondary"
-                  aria-label="Toggle theme"
-                >
-                  {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
-                </button>
-              )}
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
                 className="p-2 text-text-secondary"

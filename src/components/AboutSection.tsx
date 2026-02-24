@@ -56,7 +56,7 @@ export function AboutSection() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading label="About" title="Bridging Deep Learning and Transportation Safety" />
 
-        <div className="grid lg:grid-cols-12 gap-12 lg:gap-16">
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-16">
           {/* Photo placeholder */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}

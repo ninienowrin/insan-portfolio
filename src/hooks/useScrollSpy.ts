@@ -5,11 +5,11 @@ import { useState, useEffect } from "react";
 const sectionIds = [
   "hero",
   "about",
+  "awards",
   "research",
   "publications",
   "experience",
   "skills",
-  "awards",
   "contact",
 ];
 

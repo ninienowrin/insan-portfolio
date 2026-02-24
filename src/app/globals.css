@@ -118,6 +118,15 @@ body::before {
   left: 0;
 }
 
+/* Hide scrollbar utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Focus visible */
 *:focus-visible {
   outline: 2px solid var(--color-accent-cyan);

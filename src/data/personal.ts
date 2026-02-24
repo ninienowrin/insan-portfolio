@@ -5,9 +5,9 @@ export const personal = {
   tagline:
     "Advancing radar perception and sensor fusion for safer, smarter transportation.",
   bio: [
-    "I'm a 2nd year PhD student at UCF's Department of Civil, Environmental and Construction Engineering, working with Dr. Mohamed Abdel-Aty. I work with sensors and computer vision to understand how sensor fusion can give us a comprehensive understanding of traffic scenarios — and I'm trying to push the boundaries of what that means for improving transportation systems.",
-    "Right now, I lead research on two FDOT-funded projects: a radar-camera sensor fusion pipeline for 3D object detection in real-world traffic, and a digital twin framework for smart intersection deployment. My work spans from low-level radar signal processing and Doppler analysis to high-level BEV (bird's-eye-view) fusion architectures.",
-    "Before my PhD, I earned a B.Sc. in Electrical and Electronic Engineering from the Islamic University of Technology, where I built IoT-based road safety monitoring systems and worked as an embedded systems engineer. That cross-disciplinary foundation — bridging hardware, signal processing, and AI — shapes how I approach every transportation problem.",
+    "I'm a PhD researcher at UCF working under Dr. Mohamed Abdel-Aty, focused on one question: how do we make infrastructure truly understand the traffic around it? My research sits at the intersection of radar perception, computer vision, and sensor fusion — building systems that detect, track, and interpret vehicles in real-world conditions where cameras alone fall short.",
+    "I currently lead two FDOT-funded projects. The first develops a radar-camera fusion pipeline for bird's-eye-view vehicle detection — from raw Doppler processing to deep learning architectures that work at actual intersections. The second builds a digital twin framework for smart intersection deployment, bridging simulation with real sensor data. Both are designed to be deployed, not just published.",
+    "Before UCF, I earned my B.Sc. in Electrical and Electronic Engineering from IUT, built IoT road safety monitoring systems at BUET's Accident Research Institute, and spent three years as an embedded systems engineer. That path — from soldering circuits to training neural networks — is why I think about transportation problems differently.",
   ],
   email: "insanarafat.jahan@ucf.edu",
   phone: "321-460-2878",
@@ -19,8 +19,8 @@ export const personal = {
   stats: [
     { label: "Publications", value: "7+" },
     { label: "Years Research", value: "4+" },
-    { label: "GPA", value: "3.75" },
-    { label: "Connections", value: "500+" },
+    { label: "FDOT Projects", value: "2" },
+    { label: "Fellowships", value: "2" },
   ],
 };
 
